@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+pydantic
+pydantic-settings
+psycopg[binary]
+redis
+pymupdf4llm==1.28.2
+aiofiles==25.1.0

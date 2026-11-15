@@ -1,5 +1,6 @@
 from fastapi import FastAPI
-from api.routes import documents
+from api.routes import documents, jobs
 
 app = FastAPI(title="Financial RAG API")
 app.include_router(documents.document_router)
+app.include_router(jobs.job_router)
