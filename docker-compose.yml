@@ -1,0 +1,43 @@
+# Phase 0, step 1: infrastructure only (postgres + redis).
+# The api runs on the host with uvicorn for now; api/worker/qdrant come later.
+#
+# Credentials come from .env (see .env.example); the defaults after ":-"
+# are for local development only.
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-rag}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-rag}
+      POSTGRES_DB: ${POSTGRES_DB:-rag}
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"   # localhost only, not the whole network
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      # $$ = a literal $, so the variable is expanded inside the container
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:7
+    # AOF: every write is logged to disk, so queued jobs survive a restart
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  pg_data: {}
+  redis_data: {}
