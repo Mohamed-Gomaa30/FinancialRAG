@@ -1,4 +1,4 @@
-from fastapi import UploadFile, HTTPException, status
+from fastapi import UploadFile
 from core.config import settings
 
 def pdf_validation(file: UploadFile)->bool:

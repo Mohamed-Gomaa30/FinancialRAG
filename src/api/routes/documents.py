@@ -68,14 +68,10 @@ async def upload_file(
         tmp_path.unlink(missing_ok=True)
     else:
         tmp_path.replace(final_path)
-
-    # 4. Create the document and its job together. File first, rows second:
-    #    a job must never point to a file that doesn't exist yet.
+    
     document = Document(doc_id=file_sha256, file_key=file_key, metadata=metadata)
     job, created = repo.create_document_with_job(document)
 
-    # 202 = "accepted, processing happens later". A duplicate isn't new work,
-    # so it gets 200 plus the EXISTING job and the original upload's metadata.
     if not created:
         response.status_code = status.HTTP_200_OK
         document = repo.get_document(file_sha256)
